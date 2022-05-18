@@ -5,9 +5,11 @@
 package it.polito.tdp.poweroutages;
 
 import java.net.URL;
+import java.util.*;
 import java.util.ResourceBundle;
 import it.polito.tdp.poweroutages.model.Model;
 import it.polito.tdp.poweroutages.model.Nerc;
+import it.polito.tdp.poweroutages.model.Outages;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -39,6 +41,28 @@ public class FXMLController {
     @FXML
     void doRun(ActionEvent event) {
     	txtResult.clear();
+    	
+    	Nerc n = cmbNerc.getValue();
+    	String a = txtYears.getText();
+    	String h = txtHours.getText();
+    	if(a.equals("") || h.equals(""))
+    		txtResult.setText("Per favore inserire anni e ore");
+    	
+    	int anni = Integer.parseInt(a);
+    	int ore = Integer.parseInt(h);
+    	
+    	//ATTIVO METODO RICORSIVO NEL MODEL
+    	this.model.attivaRicorsione(n, anni, ore);
+    	
+    	//PRENDO RISULTATI
+    	int bestCustomers = this.model.bestCustomers();
+    	List<Outages> best = this.model.getBest();
+    	
+    	txtResult.setText("MAXIMUM NUMBER OF CUSTOMERS AFFECTED: "+bestCustomers+"\n");
+    	for(Outages o : best) {
+    		txtResult.appendText(o.toString());
+    	}
+    	
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -54,5 +78,9 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	cmbNerc.getItems().clear();
+    	for(Nerc n : this.model.getNercList()) {
+    		cmbNerc.getItems().add(n);
+    	}
     }
 }
